@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.2/TweenMax.min.js"></script>
+</head>
+<body>
+    <h1>Haywire live map view</h1>
+    <script>
+        var sockjs_url = '/socket';
+        var sockjs = new SockJS(sockjs_url);
+        sockjs.onopen    = function()  {console.log('[*] open', sockjs.protocol);};
+        sockjs.onmessage = function(e) {console.log('[.] message', e.data);};
+        sockjs.onclose   = function()  {console.log('[*] close');};
+    </script>
+</body></html>
+

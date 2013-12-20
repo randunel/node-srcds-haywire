@@ -5,6 +5,6 @@ function Controller(app) {
 }
 
 Controller.prototype.getLiveMap = function(req, res) {
-    res.end('not implemented');
+    res.render('../views/live/index.ejs');
 };
 

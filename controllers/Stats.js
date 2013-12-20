@@ -14,7 +14,7 @@ Controller.prototype.getMainStats = function(req, res) {
             res.end(err);
             return;
         }
-        res.render('../views/stats/mainstats.ejs', playerList);
+        res.render('../views/stats/index.ejs', playerList);
     });
 };
 
