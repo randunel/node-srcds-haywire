@@ -15,9 +15,10 @@ app.models = {
 };
 app.api = {
     db: new (require('./lib/db.js'))(config.db),
-    liveSocket: new (require('./lib/LiveSocket.js'))(config.socket)
+    liveSocket: new (require('./lib/LiveSocket.js'))(config.socket),
+    rcon: new (require('./lib/Rcon.js'))(config.rcon)
 };
-app.api.stats = new (require('./lib/stats.js'))(config.log, app.api.db);
+app.api.stats = new (require('./lib/Stats.js'))(config.log, app.api.rcon, app.api.db);
 app.api.liveSocket.adapter.installHandlers(httpInstance, {prefix: '/socket'});
 
 var liveMapController = new LiveMapController(app.api.stats);
