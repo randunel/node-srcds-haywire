@@ -2,16 +2,123 @@
 <html><head>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.2/TweenMax.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+    <script src="http://code.createjs.com/createjs-2013.12.12.min.js"></script>
 </head>
-<body>
-    <h1>Haywire live map view</h1>
+<body onload="load()">
+    <canvas id="canvas"></canvas>
     <script>
-        var sockjs_url = '/socket';
-        var sockjs = new SockJS(sockjs_url);
-        sockjs.onopen    = function()  {console.log('[*] open', sockjs.protocol);};
-        sockjs.onmessage = function(e) {console.log('[.] message', e.data);};
-        sockjs.onclose   = function()  {console.log('[*] close');};
+
+        function load() {
+            var stage = new createjs.Stage('canvas');
+            TweenLite.ticker.addEventListener("tick", stage.update, stage);
+            var DELAY = 0.1;
+
+            var sockjs = new SockJS('/socket');
+
+            // Setup the initial data
+            sockjs.onmessage = function(event) {
+                setupHW(JSON.parse(event.data));
+                sockjs.onmessage = function(event) {
+                    handleHW(JSON.parse(event.data));
+                };
+            };
+
+            function setupHW(data) {
+                console.log('setupHW', data);
+                Game.newInstance(data);
+            }
+
+            function handleHW(data) {
+                if(data.pId && data.pos) {
+                    TweenLite.to(Game.runningInstance.players[data.pId].entity, DELAY, {
+                        x: getX(data.pos[0]),
+                        y: getY(data.pos[1])
+                    });
+                }
+            }
+
+            function Game(data) {
+                this.address = data.address;
+                this.port = data.port;
+                this.map = data.map;
+                this.phase = data.phase;
+                this.score = [0,0,0,0];
+                this.players = {};
+                if(data.players) {
+                    for(var id in data.players) {
+                        this.players[id] = new Player(data.players[id]);
+                        stage.addChild(this.players[id].entity);
+                    }
+                    stage.update();
+                }
+            }
+
+            Game.runningInstance = null;
+            Game.newInstance = function(data) {
+                return Game.runningInstance = new Game(data);
+            };
+
+            // Player model
+            function Player(data) {
+                this.id = data.userid || data.pId;
+                this.name = data.name || '';
+                this.team = data.team || 0;
+                this.c4 = data.c4 || false;
+                this.hp = data.hp || 100;
+                this.entity = new createjs.Shape();
+                this.entity.graphics.beginFill('red').drawCircle(0, 0, 10);
+                this.entity.x = getX(data.pos[0]);
+                this.entity.y = getY(data.pos[1]);
+            }
+            Player.prototype.newRound = function() {
+                this.c4 = false;
+                this.hp = 100;
+            };
+            Player.prototype.switchTeam = function(data) {
+                if(typeof(data) == 'number') {
+                    this.team = data;
+                    return;
+                }
+                if(this.team == 2) {
+                    this.team = 3;
+                    return;
+                }
+                this.team = 2;
+            };
+
+            // Helpers
+            function getX(pos) {
+                return (pos+2000)/10;
+            }
+
+            function getY(pos) {
+                return (pos+2000)/10;
+            }
+
+
+
+
+
+/*
+            var stage = new createjs.Stage('canvas');
+            var circle = new createjs.Shape();
+            circle.graphics.beginFill('red').drawCircle(0, 0, 10);
+            circle.x = 20;
+            circle.y = 20;
+            stage.addChild(circle);
+            stage.update();
+
+            TweenLite.to(circle, 5, {x:500});
+            */
+        }
+
+        window.addEventListener('resize', resizeCanvas, false);
+        resizeCanvas();
+        function resizeCanvas() {
+            canvas.width = window.innerWidth - 250;
+            canvas.height = window.innerHeight - 50;
+        }
     </script>
 </body></html>
 
