@@ -1,6 +1,6 @@
 <!doctype html>
 <html><head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
     <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
     <script src="http://code.createjs.com/createjs-2013.12.12.min.js"></script>
@@ -56,7 +56,7 @@
 
             Game.runningInstance = null;
             Game.newInstance = function(data) {
-                return Game.runningInstance = new Game(data);
+                return window.game = Game.runningInstance = new Game(data);
             };
 
             // Player model
